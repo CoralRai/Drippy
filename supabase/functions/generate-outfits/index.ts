@@ -97,17 +97,49 @@ serve(async (req) => {
       compatMap.set(`${edge.item_b_id}-${edge.item_a_id}`, edge.compatibility_score);
     }
 
-    // Build personalization weights
+    // Build personalization weights from behavior
     const styleBoosts = new Map<string, number>();
     const itemBoosts = new Map<string, number>();
+    const categoryPrefs = new Map<string, number>();
+    const colorPrefs = new Map<string, number>();
+    
     for (const interaction of interactions) {
-      const weight = interaction.interaction_type === "like" ? 3 : interaction.interaction_type === "click" ? 1 : interaction.interaction_type === "dislike" ? -5 : interaction.interaction_type === "purchase" ? 5 : 0;
+      const weight = interaction.interaction_type === "like" ? 3 
+        : interaction.interaction_type === "save" ? 4
+        : interaction.interaction_type === "click" ? 1 
+        : interaction.interaction_type === "dislike" ? -5 
+        : interaction.interaction_type === "purchase" ? 5 : 0;
+      
       for (const tag of (interaction.style_tags || [])) {
         styleBoosts.set(tag, (styleBoosts.get(tag) || 0) + weight);
       }
       if (interaction.clothing_item_id) {
         itemBoosts.set(interaction.clothing_item_id, (itemBoosts.get(interaction.clothing_item_id) || 0) + weight);
       }
+      
+      // Track category and color preferences from metadata
+      const meta = interaction.metadata as any;
+      if (meta?.category) {
+        categoryPrefs.set(meta.category, (categoryPrefs.get(meta.category) || 0) + weight);
+      }
+    }
+
+    // Decay older interactions (more recent = higher weight)
+    // Already sorted by created_at desc, so first items are most recent
+    const recentStyles = new Map<string, number>();
+    interactions.slice(0, 30).forEach((interaction, idx) => {
+      const recencyMultiplier = 1 - (idx / 30) * 0.5; // 1.0 to 0.5
+      const weight = interaction.interaction_type === "like" ? 3 
+        : interaction.interaction_type === "save" ? 4
+        : interaction.interaction_type === "click" ? 1 : 0;
+      for (const tag of (interaction.style_tags || [])) {
+        recentStyles.set(tag, (recentStyles.get(tag) || 0) + weight * recencyMultiplier);
+      }
+    });
+    
+    // Merge recency-weighted styles into boosts
+    for (const [tag, score] of recentStyles) {
+      styleBoosts.set(tag, (styleBoosts.get(tag) || 0) + Math.round(score));
     }
 
     // Reddit boost map

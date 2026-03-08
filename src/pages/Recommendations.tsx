@@ -202,6 +202,50 @@ const Recommendations = () => {
               </div>
             )}
           </div>
+
+          {/* Season badge */}
+          {season && (
+            <div className="flex items-center justify-center mt-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/20 text-sm">
+                <Leaf className="h-3.5 w-3.5 text-primary" />
+                {season.charAt(0).toUpperCase() + season.slice(1)} collection
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Budget Filter */}
+        <div className="mb-6">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-3"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            Filters {showFilters ? "▲" : "▼"}
+          </button>
+          {showFilters && (
+            <div className="glass-card rounded-xl p-4 mb-4">
+              <label className="text-sm font-medium mb-2 block">
+                Max Budget: ₹{budgetMax.toLocaleString()}
+              </label>
+              <input
+                type="range"
+                min={2000}
+                max={10000}
+                step={500}
+                value={budgetMax}
+                onChange={(e) => setBudgetMax(Number(e.target.value))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>₹2,000</span>
+                <span>₹10,000</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Showing {filteredOutfits.length} of {outfits.length} outfits
+              </p>
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -210,19 +254,21 @@ const Recommendations = () => {
             <p className="text-muted-foreground">Generating personalized outfits...</p>
             <p className="text-xs text-muted-foreground">Scoring body type · occasion · color harmony · weather · compatibility</p>
           </div>
-        ) : outfits.length === 0 ? (
+        ) : filteredOutfits.length === 0 ? (
           <div className="text-center py-20">
             <Sparkles className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No outfits generated</h3>
-            <p className="text-muted-foreground mb-6">We couldn't find compatible combinations for this occasion.</p>
-            <Button variant="hero" onClick={() => navigate("/occasions")}>
-              Try Another Occasion
+            <h3 className="text-xl font-semibold mb-2">No outfits found</h3>
+            <p className="text-muted-foreground mb-6">
+              {outfits.length > 0 ? "Try increasing your budget filter." : "We couldn't find compatible combinations for this occasion."}
+            </p>
+            <Button variant="hero" onClick={() => outfits.length > 0 ? setBudgetMax(10000) : navigate("/occasions")}>
+              {outfits.length > 0 ? "Reset Budget" : "Try Another Occasion"}
             </Button>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {outfits.map((outfit, i) => (
+              {filteredOutfits.map((outfit, i) => (
                 <DynamicOutfitCard key={`${outfit.top.id}-${outfit.bottom.id}-${i}`} outfit={outfit} occasion={occasion} />
               ))}
             </div>

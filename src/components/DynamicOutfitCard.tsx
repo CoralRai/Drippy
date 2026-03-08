@@ -113,9 +113,15 @@ const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
         <span className="text-primary-foreground font-bold text-sm">
           {outfit.total_score}% match
         </span>
-        <span className="text-primary-foreground/80 text-xs">
-          Compatibility: {outfit.compatibility_avg}%
-        </span>
+        <div className="flex items-center gap-3 text-primary-foreground/80 text-xs">
+          {outfit.color_harmony != null && (
+            <span className="flex items-center gap-1"><Palette className="h-3 w-3" />{outfit.color_harmony}%</span>
+          )}
+          {outfit.weather_score != null && (
+            <span className="flex items-center gap-1"><CloudSun className="h-3 w-3" />{outfit.weather_score}</span>
+          )}
+          <span>Compat: {outfit.compatibility_avg}%</span>
+        </div>
       </div>
 
       {/* Content */}

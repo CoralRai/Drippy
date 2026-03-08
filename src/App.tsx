@@ -11,6 +11,7 @@ import Signup from "./pages/Signup";
 import StyleQuiz from "./pages/StyleQuiz";
 import OccasionSelect from "./pages/OccasionSelect";
 import Recommendations from "./pages/Recommendations";
+import Wardrobe from "./pages/Wardrobe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Recommendations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wardrobe"
+              element={
+                <ProtectedRoute>
+                  <Wardrobe />
                 </ProtectedRoute>
               }
             />

@@ -14,7 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      outfits: {
+        Row: {
+          accessories: string | null
+          amazon_link: string | null
+          body_types: string[]
+          bottom: string
+          color_palette: string[] | null
+          compatibility_score: number | null
+          created_at: string
+          description: string | null
+          fit_type: string | null
+          flipkart_link: string | null
+          footwear: string
+          gender: string
+          id: string
+          image_url: string | null
+          myntra_link: string | null
+          name: string
+          occasions: string[]
+          style_tags: string[]
+          styling_tip: string | null
+          top: string
+        }
+        Insert: {
+          accessories?: string | null
+          amazon_link?: string | null
+          body_types?: string[]
+          bottom: string
+          color_palette?: string[] | null
+          compatibility_score?: number | null
+          created_at?: string
+          description?: string | null
+          fit_type?: string | null
+          flipkart_link?: string | null
+          footwear: string
+          gender: string
+          id?: string
+          image_url?: string | null
+          myntra_link?: string | null
+          name: string
+          occasions?: string[]
+          style_tags?: string[]
+          styling_tip?: string | null
+          top: string
+        }
+        Update: {
+          accessories?: string | null
+          amazon_link?: string | null
+          body_types?: string[]
+          bottom?: string
+          color_palette?: string[] | null
+          compatibility_score?: number | null
+          created_at?: string
+          description?: string | null
+          fit_type?: string | null
+          flipkart_link?: string | null
+          footwear?: string
+          gender?: string
+          id?: string
+          image_url?: string | null
+          myntra_link?: string | null
+          name?: string
+          occasions?: string[]
+          style_tags?: string[]
+          styling_tip?: string | null
+          top?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      style_quizzes: {
+        Row: {
+          age_group: string
+          body_type: string
+          color_palette: string[]
+          created_at: string
+          gender: string
+          height: string
+          id: string
+          preferred_fit: string
+          skin_tone: string
+          style_preferences: string[]
+          updated_at: string
+          user_id: string
+          weight: string
+        }
+        Insert: {
+          age_group: string
+          body_type: string
+          color_palette?: string[]
+          created_at?: string
+          gender: string
+          height: string
+          id?: string
+          preferred_fit: string
+          skin_tone: string
+          style_preferences?: string[]
+          updated_at?: string
+          user_id: string
+          weight: string
+        }
+        Update: {
+          age_group?: string
+          body_type?: string
+          color_palette?: string[]
+          created_at?: string
+          gender?: string
+          height?: string
+          id?: string
+          preferred_fit?: string
+          skin_tone?: string
+          style_preferences?: string[]
+          updated_at?: string
+          user_id?: string
+          weight?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

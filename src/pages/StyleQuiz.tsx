@@ -1,20 +1,68 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { quizSteps } from "@/lib/quizOptions";
-import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+
+// Profile fields that are saved once and only changed if user wants
+const PROFILE_KEYS = ["gender", "age_group", "height", "weight", "body_type", "skin_tone"];
 
 const StyleQuiz = () => {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasExistingProfile, setHasExistingProfile] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Load existing quiz data on mount
+  useEffect(() => {
+    const loadExisting = async () => {
+      if (!user) return;
+      try {
+        const { data } = await supabase
+          .from("style_quizzes")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (data) {
+          const existing: Record<string, string | string[]> = {
+            gender: data.gender,
+            age_group: data.age_group,
+            height: data.height,
+            weight: data.weight,
+            body_type: data.body_type,
+            skin_tone: data.skin_tone,
+            preferred_fit: data.preferred_fit,
+            color_palette: data.color_palette || [],
+            style_preferences: data.style_preferences || [],
+          };
+          setAnswers(existing);
+
+          // If profile fields are already filled, skip to preferred_fit step
+          const profileFilled = PROFILE_KEYS.every((k) => existing[k]);
+          if (profileFilled) {
+            setHasExistingProfile(true);
+            // Jump to preferred_fit step (index 6 in original, now find it)
+            const prefFitIndex = quizSteps.findIndex((s) => s.key === "preferred_fit");
+            if (prefFitIndex >= 0) setStep(prefFitIndex);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load quiz data:", err);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    loadExisting();
+  }, [user]);
 
   const current = quizSteps[step];
   const progress = ((step + 1) / quizSteps.length) * 100;
@@ -54,6 +102,12 @@ const StyleQuiz = () => {
     if (step > 0) setStep(step - 1);
   };
 
+  const handleEditProfile = () => {
+    // Go back to the first step to edit profile fields
+    setStep(0);
+    setHasExistingProfile(false);
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
     setLoading(true);
@@ -67,7 +121,7 @@ const StyleQuiz = () => {
         body_type: answers.body_type as string,
         skin_tone: answers.skin_tone as string,
         preferred_fit: answers.preferred_fit as string,
-        color_palette: answers.color_palette as string[],
+        color_palette: (answers.color_palette as string[]) || [],
         style_preferences: answers.style_preferences as string[],
       };
 
@@ -86,6 +140,14 @@ const StyleQuiz = () => {
     }
   };
 
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -95,9 +157,16 @@ const StyleQuiz = () => {
             <Sparkles className="h-5 w-5 text-primary" />
             <span className="font-display font-bold text-gradient-pink">Drippy</span>
           </Link>
-          <span className="text-sm text-muted-foreground">
-            Step {step + 1} of {quizSteps.length}
-          </span>
+          <div className="flex items-center gap-3">
+            {hasExistingProfile && step >= quizSteps.findIndex((s) => s.key === "preferred_fit") && (
+              <Button variant="ghost" size="sm" onClick={handleEditProfile} className="text-xs">
+                Edit Profile Info
+              </Button>
+            )}
+            <span className="text-sm text-muted-foreground">
+              Step {step + 1} of {quizSteps.length}
+            </span>
+          </div>
         </div>
       </div>
 

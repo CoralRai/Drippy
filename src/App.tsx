@@ -16,6 +16,7 @@ import Recommendations from "./pages/Recommendations";
 import Wardrobe from "./pages/Wardrobe";
 import SeedData from "./pages/SeedData";
 import SavedOutfits from "./pages/SavedOutfits";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

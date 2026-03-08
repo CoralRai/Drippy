@@ -35,10 +35,7 @@ interface DynamicOutfit {
   score_breakdown: ScoreBreakdown;
   styling_tip?: string;
 }
-  compatibility_avg: number;
-  score_breakdown: ScoreBreakdown;
-  styling_tip?: string;
-}
+
 
 const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
   const [showBreakdown, setShowBreakdown] = useState(false);

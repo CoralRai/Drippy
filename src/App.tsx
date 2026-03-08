@@ -62,6 +62,14 @@ const App = () => (
               }
             />
             <Route path="/seed-data" element={<SeedData />} />
+            <Route
+              path="/saved"
+              element={
+                <ProtectedRoute>
+                  <SavedOutfits />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

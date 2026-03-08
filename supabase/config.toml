@@ -1,1 +1,10 @@
 project_id = "ayhsnrxiezeontkjmxia"
+
+[functions.generate-outfits]
+verify_jwt = false
+
+[functions.scrape-reddit-fashion]
+verify_jwt = false
+
+[functions.track-interaction]
+verify_jwt = false

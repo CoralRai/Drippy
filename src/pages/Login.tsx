@@ -70,6 +70,11 @@ const Login = () => {
                 className="bg-secondary border-border"
               />
             </div>
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <Button type="submit" variant="hero" className="w-full" size="lg" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>

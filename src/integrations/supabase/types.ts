@@ -14,6 +14,183 @@ export type Database = {
   }
   public: {
     Tables: {
+      clothing_items: {
+        Row: {
+          amazon_link: string | null
+          body_types: string[]
+          category: string
+          color_palette: string[]
+          created_at: string
+          fit_type: string | null
+          flipkart_link: string | null
+          gender: string
+          id: string
+          image_url: string | null
+          myntra_link: string | null
+          name: string
+          occasions: string[]
+          style_tags: string[]
+          subcategory: string | null
+        }
+        Insert: {
+          amazon_link?: string | null
+          body_types?: string[]
+          category: string
+          color_palette?: string[]
+          created_at?: string
+          fit_type?: string | null
+          flipkart_link?: string | null
+          gender?: string
+          id?: string
+          image_url?: string | null
+          myntra_link?: string | null
+          name: string
+          occasions?: string[]
+          style_tags?: string[]
+          subcategory?: string | null
+        }
+        Update: {
+          amazon_link?: string | null
+          body_types?: string[]
+          category?: string
+          color_palette?: string[]
+          created_at?: string
+          fit_type?: string | null
+          flipkart_link?: string | null
+          gender?: string
+          id?: string
+          image_url?: string | null
+          myntra_link?: string | null
+          name?: string
+          occasions?: string[]
+          style_tags?: string[]
+          subcategory?: string | null
+        }
+        Relationships: []
+      }
+      generated_outfits: {
+        Row: {
+          accessory_item_id: string | null
+          bottom_item_id: string | null
+          created_at: string
+          footwear_item_id: string | null
+          id: string
+          occasion: string
+          outerwear_item_id: string | null
+          score_breakdown: Json
+          styling_tip: string | null
+          top_item_id: string | null
+          total_score: number
+          user_id: string
+        }
+        Insert: {
+          accessory_item_id?: string | null
+          bottom_item_id?: string | null
+          created_at?: string
+          footwear_item_id?: string | null
+          id?: string
+          occasion: string
+          outerwear_item_id?: string | null
+          score_breakdown?: Json
+          styling_tip?: string | null
+          top_item_id?: string | null
+          total_score?: number
+          user_id: string
+        }
+        Update: {
+          accessory_item_id?: string | null
+          bottom_item_id?: string | null
+          created_at?: string
+          footwear_item_id?: string | null
+          id?: string
+          occasion?: string
+          outerwear_item_id?: string | null
+          score_breakdown?: Json
+          styling_tip?: string | null
+          top_item_id?: string | null
+          total_score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_outfits_accessory_item_id_fkey"
+            columns: ["accessory_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_outfits_bottom_item_id_fkey"
+            columns: ["bottom_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_outfits_footwear_item_id_fkey"
+            columns: ["footwear_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_outfits_outerwear_item_id_fkey"
+            columns: ["outerwear_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_outfits_top_item_id_fkey"
+            columns: ["top_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_compatibility: {
+        Row: {
+          compatibility_score: number
+          created_at: string
+          id: string
+          item_a_id: string
+          item_b_id: string
+          source: string
+        }
+        Insert: {
+          compatibility_score?: number
+          created_at?: string
+          id?: string
+          item_a_id: string
+          item_b_id: string
+          source?: string
+        }
+        Update: {
+          compatibility_score?: number
+          created_at?: string
+          id?: string
+          item_a_id?: string
+          item_b_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_compatibility_item_a_id_fkey"
+            columns: ["item_a_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_compatibility_item_b_id_fkey"
+            columns: ["item_b_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       outfits: {
         Row: {
           accessories: string | null
@@ -110,6 +287,42 @@ export type Database = {
         }
         Relationships: []
       }
+      reddit_fashion_data: {
+        Row: {
+          expires_at: string
+          extracted_combinations: Json
+          extracted_items: string[]
+          id: string
+          post_title: string | null
+          raw_content: string | null
+          scraped_at: string
+          sentiment_score: number | null
+          subreddit: string
+        }
+        Insert: {
+          expires_at?: string
+          extracted_combinations?: Json
+          extracted_items?: string[]
+          id?: string
+          post_title?: string | null
+          raw_content?: string | null
+          scraped_at?: string
+          sentiment_score?: number | null
+          subreddit: string
+        }
+        Update: {
+          expires_at?: string
+          extracted_combinations?: Json
+          extracted_items?: string[]
+          id?: string
+          post_title?: string | null
+          raw_content?: string | null
+          scraped_at?: string
+          sentiment_score?: number | null
+          subreddit?: string
+        }
+        Relationships: []
+      }
       style_quizzes: {
         Row: {
           age_group: string
@@ -157,6 +370,54 @@ export type Database = {
           weight?: string
         }
         Relationships: []
+      }
+      user_interactions: {
+        Row: {
+          clothing_item_id: string | null
+          created_at: string
+          id: string
+          interaction_type: string
+          metadata: Json | null
+          outfit_id: string | null
+          style_tags: string[]
+          user_id: string
+        }
+        Insert: {
+          clothing_item_id?: string | null
+          created_at?: string
+          id?: string
+          interaction_type: string
+          metadata?: Json | null
+          outfit_id?: string | null
+          style_tags?: string[]
+          user_id: string
+        }
+        Update: {
+          clothing_item_id?: string | null
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          metadata?: Json | null
+          outfit_id?: string | null
+          style_tags?: string[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_interactions_clothing_item_id_fkey"
+            columns: ["clothing_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_interactions_outfit_id_fkey"
+            columns: ["outfit_id"]
+            isOneToOne: false
+            referencedRelation: "outfits"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

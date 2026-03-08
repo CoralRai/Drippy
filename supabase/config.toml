@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.seed-fashion-data]
 verify_jwt = false
+
+[functions.virtual-try-on]
+verify_jwt = false

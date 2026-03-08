@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Shirt, Zap, ShoppingBag, ArrowRight, Palette, CloudSun, LayoutGrid } from "lucide-react";
+import { Shirt, Zap, ShoppingBag, ArrowRight, Palette, CloudSun, LayoutGrid } from "lucide-react";
+import drippyLogo from "@/assets/drippy-logo.png";
 
 const Index = () => {
   const { user } = useAuth();

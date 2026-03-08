@@ -21,6 +21,9 @@ const Index = () => {
                 <Link to="/wardrobe">
                   <Button variant="ghost" size="sm">My Wardrobe</Button>
                 </Link>
+                <Link to="/profile">
+                  <Button variant="ghost" size="sm">Profile</Button>
+                </Link>
                 <Link to="/quiz">
                   <Button variant="hero" size="sm">Style Profile</Button>
                 </Link>

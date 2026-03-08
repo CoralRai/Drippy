@@ -25,7 +25,7 @@ export const quizSteps = [
     title: "What's your weight range?",
     subtitle: "For better fit recommendations",
     type: "single" as const,
-    options: ["Under 130 lbs", "130-160 lbs", "160-190 lbs", "190-220 lbs", "Over 220 lbs"],
+    options: ["Under 50 kg", "50-65 kg", "65-80 kg", "80-100 kg", "Over 100 kg"],
   },
   {
     key: "body_type",
@@ -36,7 +36,7 @@ export const quizSteps = [
   },
   {
     key: "skin_tone",
-    title: "What's your skin tone?",
+    title: "What's your complexion?",
     subtitle: "Helps us recommend complementary colors",
     type: "single" as const,
     options: ["Fair", "Light", "Medium", "Olive", "Tan", "Dark", "Deep"],

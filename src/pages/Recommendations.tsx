@@ -136,6 +136,10 @@ const Recommendations = () => {
               <TrendingUp className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">Reddit</span>
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/saved")}>
+              <Heart className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Saved</span>
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/wardrobe")}>
               <LayoutGrid className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">Wardrobe</span>

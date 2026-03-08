@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ExternalLink, Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Palette, CloudSun, Heart } from "lucide-react";
+import { ExternalLink, Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Palette, CloudSun, Heart, Wand2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTrackInteraction } from "@/hooks/useTrackInteraction";
 import { useAuth } from "@/contexts/AuthContext";

@@ -209,7 +209,7 @@ const Recommendations = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {outfits.map((outfit, i) => (
-                <DynamicOutfitCard key={`${outfit.top.id}-${outfit.bottom.id}-${i}`} outfit={outfit} />
+                <DynamicOutfitCard key={`${outfit.top.id}-${outfit.bottom.id}-${i}`} outfit={outfit} occasion={occasion} />
               ))}
             </div>
 

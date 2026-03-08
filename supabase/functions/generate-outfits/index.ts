@@ -6,67 +6,65 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-interface ClothingItem {
-  id: string;
-  name: string;
-  category: string;
-  subcategory: string;
-  gender: string;
-  body_types: string[];
-  style_tags: string[];
-  color_palette: string[];
-  fit_type: string | null;
-  occasions: string[];
-  amazon_link: string | null;
-  myntra_link: string | null;
-  flipkart_link: string | null;
-  image_url: string | null;
+// Color harmony scoring (server-side)
+const NEUTRALS = new Set(["black", "white", "gray", "navy", "beige", "cream", "khaki", "brown", "nude", "silver"]);
+const HARMONY_PAIRS: Record<string, string[]> = {
+  navy: ["white", "cream", "brown", "beige", "khaki", "gold", "red"],
+  black: ["white", "red", "gold", "silver", "pink", "cream"],
+  white: ["navy", "black", "blue", "brown", "olive", "indigo", "red"],
+  brown: ["white", "cream", "beige", "navy", "olive", "khaki", "gold"],
+  blue: ["white", "cream", "brown", "beige", "navy", "khaki"],
+  olive: ["white", "cream", "brown", "beige", "black", "khaki"],
+  red: ["black", "white", "navy", "gray"],
+  pink: ["white", "gray", "navy", "cream", "black"],
+  cream: ["navy", "brown", "olive", "blue", "black"],
+};
+
+function colorPairScore(a: string, b: string): number {
+  if (a === b) return 60;
+  if (NEUTRALS.has(a) && NEUTRALS.has(b)) return 85;
+  if (NEUTRALS.has(a) || NEUTRALS.has(b)) return 80;
+  if (HARMONY_PAIRS[a]?.includes(b) || HARMONY_PAIRS[b]?.includes(a)) return 95;
+  return 50;
 }
 
-interface StyleQuiz {
-  gender: string;
-  body_type: string;
-  preferred_fit: string;
-  style_preferences: string[];
-  color_palette: string[];
-  skin_tone: string;
-  age_group: string;
-  height: string;
-  weight: string;
+function getColorHarmony(colors: (string | null)[]): number {
+  const valid = colors.filter((c): c is string => !!c).map((c) => c.toLowerCase());
+  if (valid.length < 2) return 70;
+  let total = 0, count = 0;
+  for (let i = 0; i < valid.length; i++) {
+    for (let j = i + 1; j < valid.length; j++) {
+      total += colorPairScore(valid[i], valid[j]);
+      count++;
+    }
+  }
+  return count > 0 ? Math.round(total / count) : 50;
 }
 
-interface CompatibilityEdge {
-  item_a_id: string;
-  item_b_id: string;
-  compatibility_score: number;
-}
+function getWeatherScore(weather: string, itemNames: string[]): number {
+  const combined = itemNames.join(" ").toLowerCase();
+  const lightKeywords = ["linen", "crop", "sandal", "tee", "polo"];
+  const heavyKeywords = ["puffer", "coat", "turtleneck", "boot", "hoodie", "leather jacket", "blazer"];
+  const hasLight = lightKeywords.some((k) => combined.includes(k));
+  const hasHeavy = heavyKeywords.some((k) => combined.includes(k));
 
-interface UserInteraction {
-  interaction_type: string;
-  style_tags: string[];
-  clothing_item_id: string | null;
-}
-
-interface ScoreBreakdown {
-  body_type: number;
-  occasion: number;
-  compatibility: number;
-  style_preference: number;
-  color_match: number;
-  fit_match: number;
-  personalization: number;
-  reddit_boost: number;
+  switch (weather) {
+    case "hot": return hasLight && !hasHeavy ? 15 : hasHeavy ? 0 : 8;
+    case "warm": return hasLight ? 12 : 8;
+    case "cool": return hasHeavy ? 12 : 6;
+    case "cold": return hasHeavy && !hasLight ? 15 : hasLight && !hasHeavy ? 0 : 8;
+    default: return 8;
+  }
 }
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { occasion, user_id } = await req.json();
+    const { occasion, user_id, weather_suggestion, include_wardrobe } = await req.json();
     if (!occasion || !user_id) {
       return new Response(JSON.stringify({ error: "occasion and user_id required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -74,20 +72,23 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all needed data in parallel
-    const [quizResult, itemsResult, compatResult, interactionsResult, redditResult] = await Promise.all([
+    // Fetch all data in parallel
+    const [quizResult, itemsResult, compatResult, interactionsResult, redditResult, wardrobeResult] = await Promise.all([
       supabase.from("style_quizzes").select("*").eq("user_id", user_id).maybeSingle(),
       supabase.from("clothing_items").select("*"),
       supabase.from("item_compatibility").select("*"),
       supabase.from("user_interactions").select("*").eq("user_id", user_id).order("created_at", { ascending: false }).limit(100),
       supabase.from("reddit_fashion_data").select("*").gte("expires_at", new Date().toISOString()).limit(50),
+      include_wardrobe ? supabase.from("user_wardrobe").select("*").eq("user_id", user_id) : Promise.resolve({ data: [] }),
     ]);
 
-    const quiz: StyleQuiz | null = quizResult.data;
-    const items: ClothingItem[] = itemsResult.data || [];
-    const compatEdges: CompatibilityEdge[] = compatResult.data || [];
-    const interactions: UserInteraction[] = interactionsResult.data || [];
+    const quiz = quizResult.data;
+    const items = itemsResult.data || [];
+    const compatEdges = compatResult.data || [];
+    const interactions = interactionsResult.data || [];
     const redditData = redditResult.data || [];
+    const wardrobeItems = wardrobeResult.data || [];
+    const weatherHint = weather_suggestion || "warm";
 
     // Build compatibility lookup
     const compatMap = new Map<string, number>();
@@ -96,12 +97,12 @@ serve(async (req) => {
       compatMap.set(`${edge.item_b_id}-${edge.item_a_id}`, edge.compatibility_score);
     }
 
-    // Build personalization weights from interactions
+    // Build personalization weights
     const styleBoosts = new Map<string, number>();
     const itemBoosts = new Map<string, number>();
     for (const interaction of interactions) {
       const weight = interaction.interaction_type === "like" ? 3 : interaction.interaction_type === "click" ? 1 : interaction.interaction_type === "dislike" ? -5 : interaction.interaction_type === "purchase" ? 5 : 0;
-      for (const tag of interaction.style_tags) {
+      for (const tag of (interaction.style_tags || [])) {
         styleBoosts.set(tag, (styleBoosts.get(tag) || 0) + weight);
       }
       if (interaction.clothing_item_id) {
@@ -109,131 +110,97 @@ serve(async (req) => {
       }
     }
 
-    // Build Reddit style boost map
+    // Reddit boost map
     const redditStyleBoosts = new Map<string, number>();
     for (const rd of redditData) {
-      for (const item of rd.extracted_items) {
-        const current = redditStyleBoosts.get(item.toLowerCase()) || 0;
-        redditStyleBoosts.set(item.toLowerCase(), current + (rd.sentiment_score || 0) * 10);
+      for (const item of (rd.extracted_items || [])) {
+        redditStyleBoosts.set(item.toLowerCase(), (redditStyleBoosts.get(item.toLowerCase()) || 0) + (rd.sentiment_score || 0) * 10);
       }
     }
 
-    // Filter items by gender
+    // Filter by gender
     const genderFilter = quiz?.gender?.toLowerCase() || "unisex";
-    const genderItems = items.filter(
-      (i) => i.gender === "unisex" || i.gender === genderFilter
-    );
+    const genderItems = items.filter((i: any) => i.gender === "unisex" || i.gender === genderFilter);
 
-    // Categorize items
-    const tops = genderItems.filter((i) => i.category === "top");
-    const bottoms = genderItems.filter((i) => i.category === "bottom");
-    const footwearItems = genderItems.filter((i) => i.category === "footwear");
-    const outerwearItems = genderItems.filter((i) => i.category === "outerwear");
-    const accessories = genderItems.filter((i) => i.category === "accessory");
+    // Categorize
+    const tops = genderItems.filter((i: any) => i.category === "top");
+    const bottoms = genderItems.filter((i: any) => i.category === "bottom");
+    const footwearItems = genderItems.filter((i: any) => i.category === "footwear");
+    const outerwearItems = genderItems.filter((i: any) => i.category === "outerwear");
+    const accessories = genderItems.filter((i: any) => i.category === "accessory");
 
-    // Score a single item against user profile
-    function scoreItem(item: ClothingItem): { score: number; breakdown: Partial<ScoreBreakdown> } {
-      let bodyTypeScore = 0;
-      let occasionScore = 0;
-      let styleScore = 0;
-      let colorScore = 0;
-      let fitScore = 0;
-      let personalizationScore = 0;
-      let redditBoost = 0;
+    // Score single item
+    function scoreItem(item: any): { score: number; breakdown: any } {
+      let bodyType = 0, occ = 0, style = 0, color = 0, fit = 0, pers = 0, reddit = 0;
 
       if (quiz) {
-        // Body type compatibility (0-20)
-        const bodyKey = quiz.body_type.toLowerCase().split(" ")[0];
-        if (item.body_types.some((bt) => bt.toLowerCase().includes(bodyKey))) {
-          bodyTypeScore = 20;
-        }
-
-        // Occasion match (0-25)
-        if (item.occasions.includes(occasion)) {
-          occasionScore = 25;
-        }
-
-        // Style preference match (0-20)
-        const matchingStyles = item.style_tags.filter((tag) =>
-          quiz.style_preferences.some((pref) => pref.toLowerCase() === tag.toLowerCase())
+        const bodyKey = (quiz.body_type || "").toLowerCase().split(" ")[0];
+        if ((item.body_types || []).some((bt: string) => bt.toLowerCase().includes(bodyKey))) bodyType = 20;
+        if ((item.occasions || []).includes(occasion)) occ = 25;
+        const matchStyles = (item.style_tags || []).filter((t: string) =>
+          (quiz.style_preferences || []).some((p: string) => p.toLowerCase() === t.toLowerCase())
         );
-        styleScore = Math.min(matchingStyles.length * 7, 20);
-
-        // Color match (0-15)
-        const matchingColors = item.color_palette.filter((c) =>
-          quiz.color_palette.some((pc) => pc.toLowerCase() === c.toLowerCase())
+        style = Math.min(matchStyles.length * 7, 20);
+        const matchColors = (item.color_palette || []).filter((c: string) =>
+          (quiz.color_palette || []).some((pc: string) => pc.toLowerCase() === c.toLowerCase())
         );
-        colorScore = Math.min(matchingColors.length * 5, 15);
-
-        // Fit match (0-10)
+        color = Math.min(matchColors.length * 5, 15);
         if (item.fit_type && quiz.preferred_fit) {
           const fitKey = quiz.preferred_fit.toLowerCase().split(" ")[0];
-          if (item.fit_type.toLowerCase().includes(fitKey)) {
-            fitScore = 10;
-          } else if (
-            (fitKey === "oversized" && item.fit_type === "relaxed") ||
-            (fitKey === "slim" && item.fit_type === "regular")
-          ) {
-            fitScore = 5;
-          }
+          if (item.fit_type.toLowerCase().includes(fitKey)) fit = 10;
+          else if ((fitKey === "oversized" && item.fit_type === "relaxed") || (fitKey === "slim" && item.fit_type === "regular")) fit = 5;
         }
       }
 
-      // Personalization from interactions (0-10)
-      for (const tag of item.style_tags) {
-        personalizationScore += styleBoosts.get(tag) || 0;
-      }
-      personalizationScore += itemBoosts.get(item.id) || 0;
-      personalizationScore = Math.max(0, Math.min(personalizationScore, 10));
+      for (const tag of (item.style_tags || [])) pers += styleBoosts.get(tag) || 0;
+      pers += itemBoosts.get(item.id) || 0;
+      pers = Math.max(0, Math.min(pers, 10));
 
-      // Reddit trending boost (0-5)
-      for (const tag of item.style_tags) {
-        redditBoost += redditStyleBoosts.get(tag.toLowerCase()) || 0;
-      }
-      redditBoost = Math.max(0, Math.min(Math.round(redditBoost), 5));
+      for (const tag of (item.style_tags || [])) reddit += redditStyleBoosts.get(tag.toLowerCase()) || 0;
+      reddit = Math.max(0, Math.min(Math.round(reddit), 5));
 
       return {
-        score: bodyTypeScore + occasionScore + styleScore + colorScore + fitScore + personalizationScore + redditBoost,
-        breakdown: {
-          body_type: bodyTypeScore,
-          occasion: occasionScore,
-          style_preference: styleScore,
-          color_match: colorScore,
-          fit_match: fitScore,
-          personalization: personalizationScore,
-          reddit_boost: redditBoost,
-        },
+        score: bodyType + occ + style + color + fit + pers + reddit,
+        breakdown: { body_type: bodyType, occasion: occ, style_preference: style, color_match: color, fit_match: fit, personalization: pers, reddit_boost: reddit },
       };
     }
 
-    // Score all items
-    const scoredTops = tops.map((t) => ({ item: t, ...scoreItem(t) })).sort((a, b) => b.score - a.score);
-    const scoredBottoms = bottoms.map((b) => ({ item: b, ...scoreItem(b) })).sort((a, b) => b.score - a.score);
-    const scoredFootwear = footwearItems.map((f) => ({ item: f, ...scoreItem(f) })).sort((a, b) => b.score - a.score);
-    const scoredOuterwear = outerwearItems.map((o) => ({ item: o, ...scoreItem(o) })).sort((a, b) => b.score - a.score);
-    const scoredAccessories = accessories.map((a) => ({ item: a, ...scoreItem(a) })).sort((a, b) => b.score - a.score);
+    // Score and sort all items
+    const scoredTops = tops.map((t: any) => ({ item: t, ...scoreItem(t) })).sort((a: any, b: any) => b.score - a.score);
+    const scoredBottoms = bottoms.map((b: any) => ({ item: b, ...scoreItem(b) })).sort((a: any, b: any) => b.score - a.score);
+    const scoredFootwear = footwearItems.map((f: any) => ({ item: f, ...scoreItem(f) })).sort((a: any, b: any) => b.score - a.score);
+    const scoredOuterwear = outerwearItems.map((o: any) => ({ item: o, ...scoreItem(o) })).sort((a: any, b: any) => b.score - a.score);
+    const scoredAccessories = accessories.map((a: any) => ({ item: a, ...scoreItem(a) })).sort((a: any, b: any) => b.score - a.score);
 
-    // Generate outfit combinations using top candidates
-    const generatedOutfits = [];
-    const topCandidates = scoredTops.slice(0, 5);
-    const bottomCandidates = scoredBottoms.slice(0, 5);
-    const footwearCandidates = scoredFootwear.slice(0, 4);
+    // Generate outfit combinations
+    const generatedOutfits: any[] = [];
+    const topCands = scoredTops.slice(0, 6);
+    const bottomCands = scoredBottoms.slice(0, 6);
+    const footwearCands = scoredFootwear.slice(0, 4);
 
-    for (const top of topCandidates) {
-      for (const bottom of bottomCandidates) {
-        // Get compatibility score between top and bottom
+    for (const top of topCands) {
+      for (const bottom of bottomCands) {
         const topBottomCompat = compatMap.get(`${top.item.id}-${bottom.item.id}`) || 50;
 
-        for (const shoe of footwearCandidates) {
+        for (const shoe of footwearCands) {
           const topShoeCompat = compatMap.get(`${top.item.id}-${shoe.item.id}`) || 50;
           const bottomShoeCompat = compatMap.get(`${bottom.item.id}-${shoe.item.id}`) || 50;
-
           const avgCompat = (topBottomCompat + topShoeCompat + bottomShoeCompat) / 3;
-          const itemScoreAvg = (top.score + bottom.score + shoe.score) / 3;
-          const totalScore = Math.round(itemScoreAvg * 0.6 + avgCompat * 0.4);
 
-          // Pick best outerwear if occasion calls for it
-          const needsOuterwear = ["winter", "formal", "office", "interview", "wedding"].includes(occasion);
+          // Color harmony score
+          const outfitColors = [top.item.primary_color, bottom.item.primary_color, shoe.item.primary_color];
+          const colorHarmony = getColorHarmony(outfitColors);
+
+          // Weather score
+          const weatherScore = getWeatherScore(weatherHint, [top.item.name, bottom.item.name, shoe.item.name]);
+
+          const itemScoreAvg = (top.score + bottom.score + shoe.score) / 3;
+          // Weighted: 40% item scores, 25% compatibility, 20% color harmony, 15% weather
+          const totalScore = Math.round(
+            itemScoreAvg * 0.40 + avgCompat * 0.25 + colorHarmony * 0.20 + weatherScore * 0.15 * 6.67
+          );
+
+          const needsOuterwear = ["winter", "formal", "office", "interview", "wedding"].includes(occasion) || weatherHint === "cold" || weatherHint === "cool";
           const outerwear = needsOuterwear ? scoredOuterwear[0]?.item || null : null;
           const accessory = scoredAccessories[0]?.item || null;
 
@@ -245,117 +212,90 @@ serve(async (req) => {
             accessory,
             total_score: Math.min(totalScore, 100),
             compatibility_avg: Math.round(avgCompat),
+            color_harmony: colorHarmony,
+            weather_score: weatherScore,
             score_breakdown: {
               top_score: top.breakdown,
               bottom_score: bottom.breakdown,
               footwear_score: shoe.breakdown,
               compatibility: Math.round(avgCompat),
+              color_harmony: colorHarmony,
+              weather_fit: weatherScore,
             },
           });
         }
       }
     }
 
-    // Sort by total score and take top 9
+    // Sort and deduplicate by taking unique top+bottom combos
     generatedOutfits.sort((a, b) => b.total_score - a.total_score);
-    const topOutfits = generatedOutfits.slice(0, 9);
+    const seen = new Set<string>();
+    const uniqueOutfits = generatedOutfits.filter((o) => {
+      const key = `${o.top.id}-${o.bottom.id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    const topOutfits = uniqueOutfits.slice(0, 9);
 
-    // Use AI to generate styling tips for top outfits
+    // AI styling tips
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (LOVABLE_API_KEY && topOutfits.length > 0) {
       try {
-        const outfitDescriptions = topOutfits.map((o, i) =>
-          `Outfit ${i + 1}: ${o.top.name} + ${o.bottom.name} + ${o.footwear.name}${o.outerwear ? ` + ${o.outerwear.name}` : ""}${o.accessory ? ` + ${o.accessory.name}` : ""} (occasion: ${occasion})`
+        const descriptions = topOutfits.map((o: any, i: number) =>
+          `Outfit ${i + 1}: ${o.top.name} + ${o.bottom.name} + ${o.footwear.name}${o.outerwear ? ` + ${o.outerwear.name}` : ""}${o.accessory ? ` + ${o.accessory.name}` : ""} (occasion: ${occasion}, weather: ${weatherHint})`
         ).join("\n");
 
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "google/gemini-2.5-flash-lite",
             messages: [
-              {
-                role: "system",
-                content: "You are a fashion stylist. For each outfit, provide a one-sentence styling tip. Return ONLY a JSON array of strings, one tip per outfit. No markdown, no explanation.",
-              },
-              {
-                role: "user",
-                content: `Generate styling tips for these outfits:\n${outfitDescriptions}`,
-              },
+              { role: "system", content: "You are a fashion stylist. For each outfit, provide a one-sentence styling tip. Return ONLY a JSON array of strings, one tip per outfit. No markdown." },
+              { role: "user", content: `Generate styling tips:\n${descriptions}` },
             ],
           }),
         });
 
         if (aiResponse.ok) {
           const aiData = await aiResponse.json();
-          const tipsText = aiData.choices?.[0]?.message?.content || "";
+          const text = aiData.choices?.[0]?.message?.content || "";
           try {
-            const tips = JSON.parse(tipsText);
-            topOutfits.forEach((outfit, i) => {
-              if (tips[i]) {
-                (outfit as any).styling_tip = tips[i];
-              }
-            });
+            const tips = JSON.parse(text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+            topOutfits.forEach((o: any, i: number) => { if (tips[i]) o.styling_tip = tips[i]; });
           } catch {
-            // If JSON parse fails, try to extract tips line by line
-            const lines = tipsText.split("\n").filter((l: string) => l.trim());
-            topOutfits.forEach((outfit, i) => {
-              if (lines[i]) {
-                (outfit as any).styling_tip = lines[i].replace(/^\d+[\.\)]\s*/, "");
-              }
-            });
+            const lines = text.split("\n").filter((l: string) => l.trim());
+            topOutfits.forEach((o: any, i: number) => { if (lines[i]) o.styling_tip = lines[i].replace(/^\d+[\.\)]\s*/, ""); });
           }
         }
-      } catch (e) {
-        console.error("AI styling tips error:", e);
-      }
+      } catch (e) { console.error("AI tips error:", e); }
     }
 
-    // Store generated outfits for caching
-    const outfitsToStore = topOutfits.map((o) => ({
-      user_id,
-      occasion,
-      top_item_id: o.top.id,
-      bottom_item_id: o.bottom.id,
-      footwear_item_id: o.footwear.id,
-      outerwear_item_id: o.outerwear?.id || null,
-      accessory_item_id: o.accessory?.id || null,
-      total_score: o.total_score,
-      score_breakdown: o.score_breakdown,
-      styling_tip: (o as any).styling_tip || null,
+    // Cache results
+    const toStore = topOutfits.map((o: any) => ({
+      user_id, occasion,
+      top_item_id: o.top.id, bottom_item_id: o.bottom.id, footwear_item_id: o.footwear.id,
+      outerwear_item_id: o.outerwear?.id || null, accessory_item_id: o.accessory?.id || null,
+      total_score: o.total_score, score_breakdown: o.score_breakdown, styling_tip: o.styling_tip || null,
     }));
 
-    // Clear old generated outfits for this user+occasion, then insert new
     await supabase.from("generated_outfits").delete().eq("user_id", user_id).eq("occasion", occasion);
-    if (outfitsToStore.length > 0) {
-      await supabase.from("generated_outfits").insert(outfitsToStore);
-    }
+    if (toStore.length > 0) await supabase.from("generated_outfits").insert(toStore);
 
-    return new Response(
-      JSON.stringify({
-        outfits: topOutfits.map((o) => ({
-          top: o.top,
-          bottom: o.bottom,
-          footwear: o.footwear,
-          outerwear: o.outerwear,
-          accessory: o.accessory,
-          total_score: o.total_score,
-          compatibility_avg: o.compatibility_avg,
-          score_breakdown: o.score_breakdown,
-          styling_tip: (o as any).styling_tip,
-        })),
-        quiz_data: quiz,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({
+      outfits: topOutfits.map((o: any) => ({
+        top: o.top, bottom: o.bottom, footwear: o.footwear, outerwear: o.outerwear, accessory: o.accessory,
+        total_score: o.total_score, compatibility_avg: o.compatibility_avg, color_harmony: o.color_harmony,
+        weather_score: o.weather_score, score_breakdown: o.score_breakdown, styling_tip: o.styling_tip,
+      })),
+      quiz_data: quiz,
+      wardrobe_count: wardrobeItems.length,
+    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error("generate-outfits error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

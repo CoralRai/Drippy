@@ -19,6 +19,7 @@ export type Database = {
           amazon_link: string | null
           body_types: string[]
           category: string
+          color_hex: string | null
           color_palette: string[]
           created_at: string
           fit_type: string | null
@@ -29,6 +30,7 @@ export type Database = {
           myntra_link: string | null
           name: string
           occasions: string[]
+          primary_color: string | null
           style_tags: string[]
           subcategory: string | null
         }
@@ -36,6 +38,7 @@ export type Database = {
           amazon_link?: string | null
           body_types?: string[]
           category: string
+          color_hex?: string | null
           color_palette?: string[]
           created_at?: string
           fit_type?: string | null
@@ -46,6 +49,7 @@ export type Database = {
           myntra_link?: string | null
           name: string
           occasions?: string[]
+          primary_color?: string | null
           style_tags?: string[]
           subcategory?: string | null
         }
@@ -53,6 +57,7 @@ export type Database = {
           amazon_link?: string | null
           body_types?: string[]
           category?: string
+          color_hex?: string | null
           color_palette?: string[]
           created_at?: string
           fit_type?: string | null
@@ -63,6 +68,7 @@ export type Database = {
           myntra_link?: string | null
           name?: string
           occasions?: string[]
+          primary_color?: string | null
           style_tags?: string[]
           subcategory?: string | null
         }
@@ -418,6 +424,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_wardrobe: {
+        Row: {
+          category: string
+          color: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          notes: string | null
+          style_tags: string[]
+          user_id: string
+        }
+        Insert: {
+          category: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          notes?: string | null
+          style_tags?: string[]
+          user_id: string
+        }
+        Update: {
+          category?: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          notes?: string | null
+          style_tags?: string[]
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

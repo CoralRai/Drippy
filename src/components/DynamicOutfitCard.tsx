@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ExternalLink, Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Palette, CloudSun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTrackInteraction } from "@/hooks/useTrackInteraction";
 
@@ -20,6 +20,8 @@ interface ScoreBreakdown {
   bottom_score?: Record<string, number>;
   footwear_score?: Record<string, number>;
   compatibility: number;
+  color_harmony?: number;
+  weather_fit?: number;
 }
 
 interface DynamicOutfit {
@@ -30,9 +32,12 @@ interface DynamicOutfit {
   accessory: ClothingItem | null;
   total_score: number;
   compatibility_avg: number;
+  color_harmony?: number;
+  weather_score?: number;
   score_breakdown: ScoreBreakdown;
   styling_tip?: string;
 }
+
 
 const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -107,9 +112,15 @@ const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
         <span className="text-primary-foreground font-bold text-sm">
           {outfit.total_score}% match
         </span>
-        <span className="text-primary-foreground/80 text-xs">
-          Compatibility: {outfit.compatibility_avg}%
-        </span>
+        <div className="flex items-center gap-3 text-primary-foreground/80 text-xs">
+          {outfit.color_harmony != null && (
+            <span className="flex items-center gap-1"><Palette className="h-3 w-3" />{outfit.color_harmony}%</span>
+          )}
+          {outfit.weather_score != null && (
+            <span className="flex items-center gap-1"><CloudSun className="h-3 w-3" />{outfit.weather_score}</span>
+          )}
+          <span>Compat: {outfit.compatibility_avg}%</span>
+        </div>
       </div>
 
       {/* Content */}
@@ -233,6 +244,18 @@ const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
                 <span>+{outfit.score_breakdown.top_score.reddit_boost}</span>
               </div>
             ) : null}
+            {outfit.score_breakdown.color_harmony != null && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Color harmony</span>
+                <span>{outfit.score_breakdown.color_harmony}/100</span>
+              </div>
+            )}
+            {outfit.score_breakdown.weather_fit != null && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Weather fit</span>
+                <span>{outfit.score_breakdown.weather_fit}/15</span>
+              </div>
+            )}
           </div>
         )}
 

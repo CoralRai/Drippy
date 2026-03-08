@@ -141,10 +141,10 @@ const Recommendations = () => {
       {/* Header */}
       <div className="border-b border-border/50 p-4 bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <span className="font-display font-bold text-gradient-pink">Drippy</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
             <Button variant="ghost" size="sm" onClick={handleScrapeReddit} disabled={!!redditStatus && redditStatus.includes("Analyzing")}>
               <TrendingUp className="h-4 w-4 sm:mr-1" />

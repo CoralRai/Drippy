@@ -283,9 +283,9 @@ function generateItems(subcategory: string, category: string, templates: ItemTem
             occasions: [...allOccasions],
             primary_color: primaryColor,
             color_hex: colorHexMap[primaryColor] || "#808080",
-            amazon_link: `https://amazon.in/s?k=${encodeURIComponent(name.toLowerCase().replace(/ /g, "+"))}`,
-            myntra_link: `https://www.myntra.com/${encodeURIComponent(name.toLowerCase().replace(/ /g, "-"))}`,
-            flipkart_link: `https://www.flipkart.com/search?q=${encodeURIComponent(name.toLowerCase().replace(/ /g, "+"))}`,
+            amazon_link: `https://www.amazon.in/s?k=${encodeURIComponent(name.toLowerCase().replace(/ /g, "+"))}&tag=drippy-21`,
+            myntra_link: `https://www.myntra.com/${encodeURIComponent(subcategory)}?rawQuery=${encodeURIComponent(name.toLowerCase())}&rf=Color%3A${encodeURIComponent(primaryColor)}`,
+            flipkart_link: `https://www.flipkart.com/search?q=${encodeURIComponent(name.toLowerCase().replace(/ /g, "+"))}&affid=drippy`,
           });
         }
       }

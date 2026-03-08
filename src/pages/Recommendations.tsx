@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowLeft, Loader2, RefreshCw, Zap, TrendingUp, CloudSun, Palette, LayoutGrid, Heart } from "lucide-react";
+import { Sparkles, ArrowLeft, Loader2, RefreshCw, Zap, TrendingUp, CloudSun, Palette, LayoutGrid, Heart, SlidersHorizontal, Leaf } from "lucide-react";
 import DynamicOutfitCard from "@/components/DynamicOutfitCard";
 import { useTrackInteraction } from "@/hooks/useTrackInteraction";
 import { useWeather } from "@/hooks/useWeather";

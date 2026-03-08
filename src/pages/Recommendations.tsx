@@ -56,6 +56,8 @@ const Recommendations = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [redditStatus, setRedditStatus] = useState<string | null>(null);
   const [includeWardrobe, setIncludeWardrobe] = useState(true);
+  const [budgetMax, setBudgetMax] = useState(10000);
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchRecommendations = useCallback(async () => {
     if (!user) return;

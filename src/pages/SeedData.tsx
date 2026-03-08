@@ -52,7 +52,7 @@ const SeedData = () => {
 
   const getIcon = (status: StepStatus["status"]) => {
     if (status === "loading") return <Loader2 className="h-5 w-5 animate-spin text-primary" />;
-    if (status === "done") return <CheckCircle className="h-5 w-5 text-green-500" />;
+    if (status === "done") return <CheckCircle className="h-5 w-5 text-primary" />;
     if (status === "error") return <span className="text-destructive text-sm">✗</span>;
     return <Database className="h-5 w-5 text-muted-foreground" />;
   };

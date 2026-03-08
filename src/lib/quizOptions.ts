@@ -36,7 +36,7 @@ export const quizSteps = [
   },
   {
     key: "skin_tone",
-    title: "What's your skin tone?",
+    title: "What's your complexion?",
     subtitle: "Helps us recommend complementary colors",
     type: "single" as const,
     options: ["Fair", "Light", "Medium", "Olive", "Tan", "Dark", "Deep"],

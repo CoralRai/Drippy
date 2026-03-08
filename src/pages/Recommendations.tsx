@@ -143,7 +143,7 @@ const Recommendations = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span className="font-display font-bold text-gradient-pink">StyleMatch AI</span>
+            <span className="font-display font-bold text-gradient-pink">Drippy</span>
           </div>
           <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
             <Button variant="ghost" size="sm" onClick={handleScrapeReddit} disabled={!!redditStatus && redditStatus.includes("Analyzing")}>

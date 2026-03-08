@@ -43,7 +43,7 @@ const Signup = () => {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
             <Sparkles className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold font-display text-gradient-pink">StyleMatch AI</h1>
+            <h1 className="text-3xl font-bold font-display text-gradient-pink">Drippy</h1>
           </div>
           <p className="text-muted-foreground">Create your account and find your style</p>
         </div>

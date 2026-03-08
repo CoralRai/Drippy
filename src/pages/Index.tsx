@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Shirt, Zap, ShoppingBag, ArrowRight, Palette, CloudSun, LayoutGrid } from "lucide-react";
+import drippyLogo from "@/assets/drippy-logo.png";
 
 const Index = () => {
   const { user } = useAuth();
@@ -12,8 +13,7 @@ const Index = () => {
       <nav className="border-b border-border/50 p-4 bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <span className="font-display font-bold text-xl text-gradient-pink">StyleMatch AI</span>
+            <img src={drippyLogo} alt="Drippy" className="h-8" />
           </div>
           <div>
             {user ? (
@@ -149,7 +149,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border/50 py-8 px-4 bg-background/90 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto text-center text-muted-foreground text-sm">
-          <p>© 2026 StyleMatch AI. All rights reserved.</p>
+          <p>© 2026 Drippy. All rights reserved.</p>
         </div>
       </footer>
     </div>

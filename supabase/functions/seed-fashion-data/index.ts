@@ -103,6 +103,8 @@ function getImage(category: string, gender: string, index: number): string {
   return images[index % images.length];
 }
 
+const NEUTRALS = new Set(["black", "white", "gray", "charcoal", "cream", "beige", "ivory", "navy", "khaki", "taupe"]);
+
 // Comprehensive fashion data templates
 const TOPS_DATA = [
   // T-Shirts (60 items)

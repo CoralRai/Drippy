@@ -112,9 +112,7 @@ const Recommendations = () => {
 
   const occasionLabel = occasion.charAt(0).toUpperCase() + occasion.slice(1);
 
-  // Calculate bundle price estimate (dummy for now — shows concept)
   const getBundlePrice = (outfit: DynamicOutfit) => {
-    // Price estimation based on item types
     const prices: Record<string, number> = {
       top: 899, bottom: 1299, footwear: 1999, outerwear: 2499, accessory: 599,
     };
@@ -123,6 +121,20 @@ const Recommendations = () => {
     if (outfit.accessory) total += prices.accessory;
     return total;
   };
+
+  // Detect season from weather
+  const getSeason = () => {
+    if (!weather) return null;
+    const temp = weather.temperature;
+    if (temp >= 30) return "summer";
+    if (temp >= 20) return "spring";
+    if (temp >= 10) return "autumn";
+    return "winter";
+  };
+  const season = getSeason();
+
+  // Filter outfits by budget
+  const filteredOutfits = outfits.filter((o) => getBundlePrice(o) <= budgetMax);
 
   return (
     <div className="min-h-screen bg-fashion">

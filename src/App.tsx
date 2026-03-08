@@ -60,6 +60,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route path="/seed-data" element={<SeedData />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

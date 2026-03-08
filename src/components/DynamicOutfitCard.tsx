@@ -317,7 +317,73 @@ const DynamicOutfitCard = ({ outfit, occasion }: { outfit: DynamicOutfit; occasi
             <Heart className={`h-3.5 w-3.5 ${saved ? "fill-current" : ""}`} />
           </Button>
         </div>
+
+        {/* Virtual Try-On */}
+        <TryOnSection outfit={outfit} />
       </div>
+    </div>
+  );
+};
+
+const TryOnSection = ({ outfit }: { outfit: DynamicOutfit }) => {
+  const [tryOnImage, setTryOnImage] = useState<string | null>(null);
+  const [tryOnLoading, setTryOnLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleTryOn = async () => {
+    setTryOnLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("virtual-try-on", {
+        body: {
+          top_name: outfit.top.name,
+          bottom_name: outfit.bottom.name,
+          footwear_name: outfit.footwear.name,
+          outerwear_name: outfit.outerwear?.name || null,
+          accessory_name: outfit.accessory?.name || null,
+          style_tags: [...new Set([...outfit.top.style_tags, ...outfit.bottom.style_tags])],
+        },
+      });
+      if (error) throw error;
+      if (data?.image_url) {
+        setTryOnImage(data.image_url);
+      } else {
+        toast({ title: "Couldn't generate", description: data?.error || "Try again later", variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Try-On Error", description: e.message || "Failed to generate", variant: "destructive" });
+    } finally {
+      setTryOnLoading(false);
+    }
+  };
+
+  return (
+    <div className="pt-2">
+      {tryOnImage ? (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-primary flex items-center gap-1">
+            <Wand2 className="h-3 w-3" /> AI Generated Preview
+          </p>
+          <img src={tryOnImage} alt="AI Try-On Preview" className="w-full rounded-lg border border-border" />
+          <Button size="sm" variant="outline" className="w-full text-xs" onClick={handleTryOn} disabled={tryOnLoading}>
+            {tryOnLoading ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Wand2 className="h-3 w-3 mr-1" />}
+            Regenerate
+          </Button>
+        </div>
+      ) : (
+        <Button
+          size="sm"
+          variant="outline-pink"
+          className="w-full text-xs"
+          onClick={handleTryOn}
+          disabled={tryOnLoading}
+        >
+          {tryOnLoading ? (
+            <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Generating...</>
+          ) : (
+            <><Wand2 className="h-3.5 w-3.5 mr-1" /> AI Try-On Preview</>
+          )}
+        </Button>
+      )}
     </div>
   );
 };

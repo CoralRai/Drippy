@@ -288,7 +288,7 @@ const DynamicOutfitCard = ({ outfit, occasion }: { outfit: DynamicOutfit; occasi
           </div>
         )}
 
-        {/* Like/Dislike */}
+        {/* Like/Dislike/Save */}
         <div className="flex gap-2 pt-1">
           <Button
             size="sm"
@@ -307,6 +307,14 @@ const DynamicOutfitCard = ({ outfit, occasion }: { outfit: DynamicOutfit; occasi
           >
             <ThumbsDown className="h-3.5 w-3.5 mr-1" />
             {liked === false ? "Nope" : "Dislike"}
+          </Button>
+          <Button
+            size="sm"
+            variant={saved ? "hero" : "outline-pink"}
+            className="text-xs px-3"
+            onClick={handleSave}
+          >
+            <Heart className={`h-3.5 w-3.5 ${saved ? "fill-current" : ""}`} />
           </Button>
         </div>
       </div>

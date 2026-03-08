@@ -149,7 +149,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border/50 py-8 px-4 bg-background/90 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto text-center text-muted-foreground text-sm">
-          <p>© 2026 StyleMatch AI. All rights reserved.</p>
+          <p>© 2026 Drippy. All rights reserved.</p>
         </div>
       </footer>
     </div>

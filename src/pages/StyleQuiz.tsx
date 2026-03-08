@@ -93,7 +93,7 @@ const StyleQuiz = () => {
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span className="font-display font-bold text-gradient-pink">StyleMatch AI</span>
+            <span className="font-display font-bold text-gradient-pink">Drippy</span>
           </div>
           <span className="text-sm text-muted-foreground">
             Step {step + 1} of {quizSteps.length}

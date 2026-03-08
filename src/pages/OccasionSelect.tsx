@@ -20,7 +20,7 @@ const OccasionSelect = () => {
       <div className="border-b border-border p-4">
         <div className="max-w-4xl mx-auto flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          <span className="font-display font-bold text-gradient-pink">StyleMatch AI</span>
+          <span className="font-display font-bold text-gradient-pink">Drippy</span>
         </div>
       </div>
 

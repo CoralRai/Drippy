@@ -329,6 +329,81 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_outfits: {
+        Row: {
+          accessory_item_id: string | null
+          bottom_item_id: string | null
+          created_at: string
+          footwear_item_id: string | null
+          id: string
+          occasion: string | null
+          outerwear_item_id: string | null
+          top_item_id: string | null
+          total_score: number
+          user_id: string
+        }
+        Insert: {
+          accessory_item_id?: string | null
+          bottom_item_id?: string | null
+          created_at?: string
+          footwear_item_id?: string | null
+          id?: string
+          occasion?: string | null
+          outerwear_item_id?: string | null
+          top_item_id?: string | null
+          total_score?: number
+          user_id: string
+        }
+        Update: {
+          accessory_item_id?: string | null
+          bottom_item_id?: string | null
+          created_at?: string
+          footwear_item_id?: string | null
+          id?: string
+          occasion?: string | null
+          outerwear_item_id?: string | null
+          top_item_id?: string | null
+          total_score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_outfits_accessory_item_id_fkey"
+            columns: ["accessory_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_outfits_bottom_item_id_fkey"
+            columns: ["bottom_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_outfits_footwear_item_id_fkey"
+            columns: ["footwear_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_outfits_outerwear_item_id_fkey"
+            columns: ["outerwear_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_outfits_top_item_id_fkey"
+            columns: ["top_item_id"]
+            isOneToOne: false
+            referencedRelation: "clothing_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       style_quizzes: {
         Row: {
           age_group: string

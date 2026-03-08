@@ -13,8 +13,7 @@ const Index = () => {
       <nav className="border-b border-border/50 p-4 bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <span className="font-display font-bold text-xl text-gradient-pink">StyleMatch AI</span>
+            <img src={drippyLogo} alt="Drippy" className="h-8" />
           </div>
           <div>
             {user ? (

@@ -49,11 +49,11 @@ export const quizSteps = [
     options: ["Slim fit", "Regular fit", "Oversized / Relaxed"],
   },
   {
-    key: "color_palette",
-    title: "What colors do you gravitate towards?",
+    key: "style_preferences",
+    title: "What fashion styles do you love?",
     subtitle: "Select all that apply",
     type: "multi" as const,
-    options: ["Neutrals", "Earth tones", "Pastels", "Bold colors", "Monochrome", "Jewel tones"],
+    options: ["Streetwear", "Casual", "Formal", "Minimal", "Sporty", "Bohemian", "Vintage", "Preppy"],
   },
   {
     key: "style_preferences",

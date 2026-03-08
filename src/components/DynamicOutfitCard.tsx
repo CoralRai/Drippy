@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { ExternalLink, Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Palette, CloudSun } from "lucide-react";
+import { ExternalLink, Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Palette, CloudSun, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTrackInteraction } from "@/hooks/useTrackInteraction";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ClothingItem {
   id: string;

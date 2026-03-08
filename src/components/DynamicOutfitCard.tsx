@@ -20,6 +20,8 @@ interface ScoreBreakdown {
   bottom_score?: Record<string, number>;
   footwear_score?: Record<string, number>;
   compatibility: number;
+  color_harmony?: number;
+  weather_fit?: number;
 }
 
 interface DynamicOutfit {

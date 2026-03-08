@@ -242,6 +242,18 @@ const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
                 <span>+{outfit.score_breakdown.top_score.reddit_boost}</span>
               </div>
             ) : null}
+            {outfit.score_breakdown.color_harmony != null && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Color harmony</span>
+                <span>{outfit.score_breakdown.color_harmony}/100</span>
+              </div>
+            )}
+            {outfit.score_breakdown.weather_fit != null && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Weather fit</span>
+                <span>{outfit.score_breakdown.weather_fit}/15</span>
+              </div>
+            )}
           </div>
         )}
 

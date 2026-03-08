@@ -7,7 +7,7 @@ export function useTrackInteraction() {
 
   const track = useCallback(
     async (params: {
-      interaction_type: "view" | "click" | "like" | "dislike" | "purchase";
+      interaction_type: "view" | "click" | "like" | "dislike" | "purchase" | "save";
       outfit_id?: string;
       clothing_item_id?: string;
       style_tags?: string[];

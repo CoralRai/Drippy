@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { ExternalLink, Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Palette, CloudSun } from "lucide-react";
+import { ExternalLink, Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Palette, CloudSun, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTrackInteraction } from "@/hooks/useTrackInteraction";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ClothingItem {
   id: string;
@@ -39,10 +42,36 @@ interface DynamicOutfit {
 }
 
 
-const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
+const DynamicOutfitCard = ({ outfit, occasion }: { outfit: DynamicOutfit; occasion?: string }) => {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [liked, setLiked] = useState<boolean | null>(null);
+  const [saved, setSaved] = useState(false);
   const { track } = useTrackInteraction();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleSave = async () => {
+    if (!user) return;
+    if (saved) {
+      toast({ title: "Already saved!" });
+      return;
+    }
+    const { error } = await supabase.from("saved_outfits").insert({
+      user_id: user.id,
+      top_item_id: outfit.top.id,
+      bottom_item_id: outfit.bottom.id,
+      footwear_item_id: outfit.footwear.id,
+      outerwear_item_id: outfit.outerwear?.id || null,
+      accessory_item_id: outfit.accessory?.id || null,
+      total_score: outfit.total_score,
+      occasion: occasion || null,
+    });
+    if (!error) {
+      setSaved(true);
+      toast({ title: "Saved!", description: "Outfit added to your collection." });
+      track({ interaction_type: "save", clothing_item_id: outfit.top.id, style_tags: [...new Set([...outfit.top.style_tags, ...outfit.bottom.style_tags])] });
+    }
+  };
 
   const allTags = [
     ...outfit.top.style_tags,
@@ -259,7 +288,7 @@ const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
           </div>
         )}
 
-        {/* Like/Dislike */}
+        {/* Like/Dislike/Save */}
         <div className="flex gap-2 pt-1">
           <Button
             size="sm"
@@ -278,6 +307,14 @@ const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
           >
             <ThumbsDown className="h-3.5 w-3.5 mr-1" />
             {liked === false ? "Nope" : "Dislike"}
+          </Button>
+          <Button
+            size="sm"
+            variant={saved ? "hero" : "outline-pink"}
+            className="text-xs px-3"
+            onClick={handleSave}
+          >
+            <Heart className={`h-3.5 w-3.5 ${saved ? "fill-current" : ""}`} />
           </Button>
         </div>
       </div>

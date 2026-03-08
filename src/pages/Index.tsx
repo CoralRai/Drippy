@@ -12,9 +12,9 @@ const Index = () => {
       {/* Nav */}
       <nav className="border-b border-border/50 p-4 bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <img src={drippyLogo} alt="Drippy" className="h-8" />
-          </div>
+          </Link>
           <div>
             {user ? (
               <div className="flex gap-3">

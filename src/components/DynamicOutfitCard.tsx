@@ -42,10 +42,36 @@ interface DynamicOutfit {
 }
 
 
-const DynamicOutfitCard = ({ outfit }: { outfit: DynamicOutfit }) => {
+const DynamicOutfitCard = ({ outfit, occasion }: { outfit: DynamicOutfit; occasion?: string }) => {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [liked, setLiked] = useState<boolean | null>(null);
+  const [saved, setSaved] = useState(false);
   const { track } = useTrackInteraction();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleSave = async () => {
+    if (!user) return;
+    if (saved) {
+      toast({ title: "Already saved!" });
+      return;
+    }
+    const { error } = await supabase.from("saved_outfits").insert({
+      user_id: user.id,
+      top_item_id: outfit.top.id,
+      bottom_item_id: outfit.bottom.id,
+      footwear_item_id: outfit.footwear.id,
+      outerwear_item_id: outfit.outerwear?.id || null,
+      accessory_item_id: outfit.accessory?.id || null,
+      total_score: outfit.total_score,
+      occasion: occasion || null,
+    });
+    if (!error) {
+      setSaved(true);
+      toast({ title: "Saved!", description: "Outfit added to your collection." });
+      track({ interaction_type: "save", clothing_item_id: outfit.top.id, style_tags: [...new Set([...outfit.top.style_tags, ...outfit.bottom.style_tags])] });
+    }
+  };
 
   const allTags = [
     ...outfit.top.style_tags,

@@ -30,6 +30,12 @@ interface DynamicOutfit {
   accessory: ClothingItem | null;
   total_score: number;
   compatibility_avg: number;
+  color_harmony?: number;
+  weather_score?: number;
+  score_breakdown: ScoreBreakdown;
+  styling_tip?: string;
+}
+  compatibility_avg: number;
   score_breakdown: ScoreBreakdown;
   styling_tip?: string;
 }

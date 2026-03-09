@@ -41,6 +41,29 @@ interface DynamicOutfit {
   styling_tip?: string;
 }
 
+const ItemRow = ({ icon, label, item, renderLinks }: { icon: React.ReactNode; label: string; item: ClothingItem; renderLinks: (item: ClothingItem) => React.ReactNode }) => (
+  <div className="flex gap-3 items-start">
+    {item.image_url ? (
+      <img
+        src={item.image_url}
+        alt={item.name}
+        className="w-14 h-14 rounded-lg object-cover border border-border shrink-0"
+        loading="lazy"
+      />
+    ) : (
+      <div className="w-14 h-14 rounded-lg bg-secondary flex items-center justify-center shrink-0 border border-border">
+        {icon}
+      </div>
+    )}
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-1.5 text-sm">
+        <span className="text-muted-foreground text-xs">{label}</span>
+        <span className="font-medium truncate">{item.name}</span>
+      </div>
+      {renderLinks(item)}
+    </div>
+  </div>
+);
 
 const DynamicOutfitCard = ({ outfit, occasion }: { outfit: DynamicOutfit; occasion?: string }) => {
   const [showBreakdown, setShowBreakdown] = useState(false);

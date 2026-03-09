@@ -41,6 +41,29 @@ interface DynamicOutfit {
   styling_tip?: string;
 }
 
+const ItemRow = ({ icon, label, item, renderLinks }: { icon: React.ReactNode; label: string; item: ClothingItem; renderLinks: (item: ClothingItem) => React.ReactNode }) => (
+  <div className="flex gap-3 items-start">
+    {item.image_url ? (
+      <img
+        src={item.image_url}
+        alt={item.name}
+        className="w-14 h-14 rounded-lg object-cover border border-border shrink-0"
+        loading="lazy"
+      />
+    ) : (
+      <div className="w-14 h-14 rounded-lg bg-secondary flex items-center justify-center shrink-0 border border-border">
+        {icon}
+      </div>
+    )}
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-1.5 text-sm">
+        <span className="text-muted-foreground text-xs">{label}</span>
+        <span className="font-medium truncate">{item.name}</span>
+      </div>
+      {renderLinks(item)}
+    </div>
+  </div>
+);
 
 const DynamicOutfitCard = ({ outfit, occasion }: { outfit: DynamicOutfit; occasion?: string }) => {
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -161,53 +184,14 @@ const DynamicOutfitCard = ({ outfit, occasion }: { outfit: DynamicOutfit; occasi
 
         {/* Items with affiliate links */}
         <div className="space-y-3">
-          <div>
-            <div className="flex items-center gap-2 text-sm">
-              <Shirt className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-muted-foreground">Top:</span>
-              <span className="font-medium">{outfit.top.name}</span>
-            </div>
-            {renderAffiliateLinks(outfit.top)}
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="h-4 w-4 text-primary text-center shrink-0">👖</span>
-              <span className="text-muted-foreground">Bottom:</span>
-              <span className="font-medium">{outfit.bottom.name}</span>
-            </div>
-            {renderAffiliateLinks(outfit.bottom)}
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 text-sm">
-              <Footprints className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-muted-foreground">Shoes:</span>
-              <span className="font-medium">{outfit.footwear.name}</span>
-            </div>
-            {renderAffiliateLinks(outfit.footwear)}
-          </div>
-
+          <ItemRow icon={<Shirt className="h-4 w-4 text-primary shrink-0" />} label="Top" item={outfit.top} renderLinks={renderAffiliateLinks} />
+          <ItemRow icon={<span className="h-4 w-4 text-primary text-center shrink-0">👖</span>} label="Bottom" item={outfit.bottom} renderLinks={renderAffiliateLinks} />
+          <ItemRow icon={<Footprints className="h-4 w-4 text-primary shrink-0" />} label="Shoes" item={outfit.footwear} renderLinks={renderAffiliateLinks} />
           {outfit.outerwear && (
-            <div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="h-4 w-4 text-primary text-center shrink-0">🧥</span>
-                <span className="text-muted-foreground">Layer:</span>
-                <span className="font-medium">{outfit.outerwear.name}</span>
-              </div>
-              {renderAffiliateLinks(outfit.outerwear)}
-            </div>
+            <ItemRow icon={<span className="h-4 w-4 text-primary text-center shrink-0">🧥</span>} label="Layer" item={outfit.outerwear} renderLinks={renderAffiliateLinks} />
           )}
-
           {outfit.accessory && (
-            <div>
-              <div className="flex items-center gap-2 text-sm">
-                <Watch className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-muted-foreground">Accessory:</span>
-                <span className="font-medium">{outfit.accessory.name}</span>
-              </div>
-              {renderAffiliateLinks(outfit.accessory)}
-            </div>
+            <ItemRow icon={<Watch className="h-4 w-4 text-primary shrink-0" />} label="Accessory" item={outfit.accessory} renderLinks={renderAffiliateLinks} />
           )}
         </div>
 

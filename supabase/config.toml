@@ -1,0 +1,16 @@
+project_id = "ayhsnrxiezeontkjmxia"
+
+[functions.generate-outfits]
+verify_jwt = false
+
+[functions.scrape-reddit-fashion]
+verify_jwt = false
+
+[functions.track-interaction]
+verify_jwt = false
+
+[functions.seed-fashion-data]
+verify_jwt = false
+
+[functions.virtual-try-on]
+verify_jwt = false

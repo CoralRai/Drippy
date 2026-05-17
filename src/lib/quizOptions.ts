@@ -49,11 +49,11 @@ export const quizSteps = [
     options: ["Slim fit", "Regular fit", "Oversized / Relaxed"],
   },
   {
-    key: "style_preferences",
-    title: "What fashion styles do you love?",
+    key: "color_palette",
+    title: "Which colors do you wear most?",
     subtitle: "Select all that apply",
     type: "multi" as const,
-    options: ["Streetwear", "Casual", "Formal", "Minimal", "Sporty", "Bohemian", "Vintage", "Preppy"],
+    options: ["Black", "White", "Blue", "Brown", "Cream", "Pastels", "Monochrome", "Earth Tones"],
   },
   {
     key: "style_preferences",

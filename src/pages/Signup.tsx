@@ -21,12 +21,20 @@ const Signup = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signUp(email, password, displayName);
-      toast({
-        title: "Account created!",
-        description: "Check your email to confirm, then sign in.",
-      });
-      navigate("/login");
+      const { needsEmailConfirmation } = await signUp(email, password, displayName);
+      if (needsEmailConfirmation) {
+        toast({
+          title: "Account created!",
+          description: "Check your email to confirm your account, then sign in.",
+        });
+        navigate("/login");
+      } else {
+        toast({
+          title: "Welcome to Drippy!",
+          description: "Your account is ready — let’s set up your style profile.",
+        });
+        navigate("/quiz");
+      }
     } catch (error: any) {
       toast({
         title: "Signup failed",
